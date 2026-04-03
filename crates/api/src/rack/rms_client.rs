@@ -75,6 +75,24 @@ pub mod test_support {
 
     #[async_trait::async_trait]
     impl RmsApi for MockRmsClient {
+        async fn get_node_device_info(
+            &self,
+            _cmd: rms::GetNodeDeviceInfoRequest,
+        ) -> Result<rms::GetNodeDeviceInfoResponse, RackManagerError> {
+            Ok(rms::GetNodeDeviceInfoResponse::default())
+        }
+        async fn get_device_info_by_node_type(
+            &self,
+            _cmd: rms::GetDeviceInfoByNodeTypeRequest,
+        ) -> Result<rms::GetDeviceInfoByNodeTypeResponse, RackManagerError> {
+            Ok(rms::GetDeviceInfoByNodeTypeResponse::default())
+        }
+        async fn update_firmware_by_device_list(
+            &self,
+            _cmd: rms::UpdateFirmwareByDeviceListRequest,
+        ) -> Result<rms::UpdateFirmwareByDeviceListResponse, RackManagerError> {
+            Ok(rms::UpdateFirmwareByDeviceListResponse::default())
+        }
         async fn set_power_state(
             &self,
             _cmd: rms::SetPowerStateRequest,
