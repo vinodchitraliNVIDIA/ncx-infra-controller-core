@@ -36,7 +36,6 @@ use futures_util::{StreamExt, TryFutureExt};
 use itertools::Itertools;
 use libredfish::model::oem::nvidia_dpu::NicMode;
 use librms::RmsApi;
-use librms::protos::rack_manager::{NewNodeInfo, NodeType as RmsNodeType};
 use mac_address::MacAddress;
 use model::expected_power_shelf::ExpectedPowerShelf;
 use model::expected_switch::ExpectedSwitch;
@@ -65,7 +64,6 @@ mod metrics;
 pub use metrics::SiteExplorationMetrics;
 mod bmc_endpoint_explorer;
 mod redfish;
-pub mod rms;
 pub use bmc_endpoint_explorer::BmcEndpointExplorer;
 mod boot_order_tracker;
 use boot_order_tracker::BootOrderTracker;
@@ -170,7 +168,7 @@ pub struct SiteExplorer {
     machine_creator: MachineCreator,
     switch_creator: SwitchCreator,
     boot_order_tracker: BootOrderTracker,
-    rms_client: Option<Arc<dyn RmsApi>>,
+    // rms_client: Option<Arc<dyn RmsApi>>,
 }
 
 impl SiteExplorer {
@@ -215,7 +213,6 @@ impl SiteExplorer {
             firmware_config,
             work_lock_manager_handle,
             boot_order_tracker: BootOrderTracker::default(),
-            rms_client,
         }
     }
 
@@ -768,43 +765,6 @@ impl SiteExplorer {
             power_shelf_id,
             explored_endpoint.address
         );
-
-        // Register the power shelf with Rack Manager if RMS client is available
-        if let Some(rms_client) = &self.rms_client {
-            if let Some(ref rack_id) = expected_shelf.rack_id {
-                let new_node_info = NewNodeInfo {
-                    rack_id: rack_id.to_string(),
-                    node_id: power_shelf_id.to_string(),
-                    mac_address: expected_shelf.bmc_mac_address.to_string(),
-                    ip_address: explored_endpoint.address.to_string(),
-                    port: 443,
-                    username: None,
-                    password: None,
-                    r#type: Some(RmsNodeType::Powershelf.into()),
-                    vault_path: String::new(),
-                    host_ip_addresses: vec![],
-                    host_mac_addresses: vec![],
-                };
-                if let Err(e) = rms::add_node_to_rms(rms_client.as_ref(), new_node_info).await {
-                    tracing::warn!(
-                        "Failed to add power shelf {} to Rack Manager: {}",
-                        power_shelf_id,
-                        e
-                    );
-                } else {
-                    tracing::info!(
-                        "Added power shelf {} to Rack Manager for endpoint {}",
-                        power_shelf_id,
-                        explored_endpoint.address,
-                    );
-                }
-            } else {
-                tracing::warn!(
-                    "Cannot add power shelf {} to Rack Manager: rack_id is missing",
-                    power_shelf_id
-                );
-            }
-        }
 
         Ok(true)
     }

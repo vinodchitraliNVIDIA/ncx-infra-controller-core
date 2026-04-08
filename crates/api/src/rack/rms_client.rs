@@ -141,9 +141,6 @@ pub mod test_support {
             for node in cmd.node_info {
                 registered.push(librms::protos::rack_manager::NodeInventoryInfo {
                     node_id: node.node_id.clone(),
-                    ip_address: node.ip_address.clone(),
-                    port: node.port,
-                    mac_address: node.mac_address.clone(),
                     rack_id: node.rack_id.clone(),
                     r#type: node.r#type.unwrap_or(0),
                     ..Default::default()
@@ -186,18 +183,6 @@ pub mod test_support {
             _cmd: rms::GetNodeFirmwareInventoryRequest,
         ) -> Result<rms::GetNodeFirmwareInventoryResponse, RackManagerError> {
             Ok(rms::GetNodeFirmwareInventoryResponse::default())
-        }
-        async fn update_node_firmware(
-            &self,
-            _cmd: rms::UpdateNodeFirmwareRequest,
-        ) -> Result<rms::UpdateNodeFirmwareResponse, RackManagerError> {
-            Ok(rms::UpdateNodeFirmwareResponse::default())
-        }
-        async fn update_firmware_by_node_type(
-            &self,
-            _cmd: rms::UpdateFirmwareByNodeTypeRequest,
-        ) -> Result<rms::UpdateFirmwareByNodeTypeResponse, RackManagerError> {
-            Ok(rms::UpdateFirmwareByNodeTypeResponse::default())
         }
         async fn get_rack_firmware_inventory(
             &self,
